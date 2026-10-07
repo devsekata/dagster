@@ -80,7 +80,7 @@ def compute_sentiment_scores(comments: list[dict], pipe, batch_size: int = 32) -
 
     if non_empty_idx:
         payload = [cleaned[i] for i in non_empty_idx]
-        raw = pipe(payload, batch_size=batch_size, truncation=True)
+        raw = pipe(payload, batch_size=batch_size, truncation=True, max_length=512)
 
         for pos, r in zip(non_empty_idx, raw):
             label = str(r["label"]).lower()

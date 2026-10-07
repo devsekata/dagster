@@ -117,7 +117,11 @@ class SentimentModelResource(ConfigurableResource):
             "sentiment-analysis",
             model=self.model_name,
             tokenizer=self.model_name,
-            truncation=True,  # komentar panjang tetap aman meski > 512 token
+            truncation=True,
+            max_length=512,  # RoBERTa position embeddings cuma 514 (512+2) --
+            # tokenizer.model_max_length model ini kadang tidak ke-set dengan benar,
+            # jadi truncation=True saja tidak cukup buat caption/teks panjang (>512 token)
+            # -> harus max_length eksplisit, kalau tidak IndexError "index 514 out of bounds".
         )
 
     @property

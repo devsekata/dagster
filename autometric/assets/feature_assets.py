@@ -160,12 +160,14 @@ def _fetch_tagged_post_captions_for_sentiment(postgres: PostgresResource) -> lis
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                SELECT t.post_id AS comment_id, t.platform, t.brand_id::text, t.caption AS comment_text
+                SELECT DISTINCT ON (t.post_id, t.platform)
+                    t.post_id AS comment_id, t.platform, t.brand_id::text, t.caption AS comment_text
                 FROM l1_silver.unified_tagged_post t
                 LEFT JOIN feature.tagged_post_caption_sentiment_scores s
                     ON s.post_id = t.post_id AND s.platform = t.platform
                 WHERE s.post_id IS NULL
                   AND t.caption IS NOT NULL AND t.caption <> ''
+                ORDER BY t.post_id, t.platform
             """)
             cols = [d[0] for d in cur.description]
             return [dict(zip(cols, row)) for row in cur.fetchall()]
